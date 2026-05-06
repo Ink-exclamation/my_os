@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "cargo run (WSL)",
+			"type": "shell",
+			"command": "cargo run --bin my_os",
+			"options": {
+			"cwd": "${workspaceFolder}"
+			},
+			"problemMatcher": []
+		}
+	]
+}

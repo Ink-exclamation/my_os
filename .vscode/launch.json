@@ -1,0 +1,12 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Run cargo run",
+			"type": "lldb",
+			"request": "launch",
+			"program": "/bin/true",
+			"preLaunchTask": "cargo run (WSL)"
+		}
+	]
+}
