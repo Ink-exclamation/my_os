@@ -1,7 +1,11 @@
-use core::fmt::Write;
+use core::fmt;
+use core::ptr::write_volatile;
+use lazy_static::lazy_static;
+use spin::Mutex;
+
 
 #[allow(dead_code)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy)]
 #[repr(u8)]
 pub enum Color {
     Black = 0,
@@ -22,7 +26,7 @@ pub enum Color {
     White = 15,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy)]
 #[repr(transparent)]
 struct ColorCode(u8);
 
@@ -32,7 +36,7 @@ impl ColorCode {
 	}
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Clone, Copy)]
 #[repr(C)]
 struct ScreenChar {
 	ascii_character: u8,
@@ -65,14 +69,104 @@ impl Writer {
 				let col = self.column_position;
 
 				let color_code = self.color_code;
-				self.buffer.chars[row][col] = ScreenChar {
-					ascii_character: byte,
-					color_code,
-				};
+
+				unsafe{
+					core::ptr::write_volatile(
+					&mut self.buffer.chars[row][col],
+					ScreenChar {
+							ascii_character: byte,
+							color_code,
+						},
+					);
+				}
+
+				// self.buffer.chars[row][col].write(ScreenChar {
+				// 	ascii_character: byte,
+				// 	color_code,
+				// });
+
 				self.column_position += 1;
 			}
 		}
 	}
 
-	fn new_line(&mut self){/*TODO */}
+	pub fn write_string(&mut self, s: &str) {
+		for byte in s.bytes() {
+			match byte {
+				0x20..=0x7e | b'\n' => self.write_byte(byte),
+				_ => self.write_byte(0xfe),
+			}
+		}
+	}
+
+	fn new_line(&mut self){
+		for row in 1..BUFFER_HEIGHT {
+			for col in 0..BUFFER_WIDTH {
+				let character = unsafe {
+					core::ptr::read_volatile(
+						&self.buffer.chars[row][col]
+					)
+				};
+
+				unsafe{
+					core::ptr::write_volatile(
+						&mut self.buffer.chars[row - 1][col],
+						character,
+					);
+				}
+			}
+		}
+		self.clear_row(BUFFER_HEIGHT - 1);
+		self.column_position = 0;
+	}
+
+	fn clear_row(&mut self, row: usize) {
+		let blank = ScreenChar {
+			ascii_character: b' ',
+			color_code: self.color_code,
+		};
+
+		for col in 0..BUFFER_WIDTH {
+			unsafe{
+				write_volatile(
+					&mut self.buffer.chars[row][col],
+					blank,
+				)
+			};
+		}
+	}
 }
+
+impl fmt::Write for Writer {
+	fn write_str(&mut self, s: &str) -> fmt::Result {
+		self.write_string(s);
+		Ok(())
+	}
+}
+
+lazy_static!{
+	pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+		column_position: 0,
+		color_code: ColorCode::new(Color::Yellow, Color::Black),
+		buffer: unsafe{&mut *(0xb8000 as *mut Buffer)},
+	});
+}
+
+// pub fn print_something() {
+// 	let mut writer = Writer {
+// 		column_position: 0,
+// 		color_code: ColorCode::new(Color::Yellow, Color::Black),
+// 		buffer: unsafe {&mut *(0xb8000 as *mut Buffer)},
+// 	};
+
+// 	writer.write_byte(b'H');
+// 	writer.write_string("ello ");
+// 	writer.write_string("Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!");
+// 	write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
+
+//     // let vga_buffer = 0xb8000 as *mut u8;
+// 	// unsafe {
+// 	// 	*vga_buffer.offset(0) = b'H';
+// 	// 	*vga_buffer.offset(1) = 0xb;
+// 	// }
+// }
