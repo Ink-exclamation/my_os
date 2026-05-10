@@ -2,7 +2,7 @@
 #![no_main]
 
 
-use core::panic::PanicInfo;
+use core::{panic::PanicInfo};
 
 mod vga_buffer;
 
@@ -61,9 +61,11 @@ pub unsafe extern "C" fn memcmp(
 
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-    vga_buffer::WRITER.lock().write_str("HELL O AGAIN").unwrap();
-    write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
+    println!("Hello World{}", "!");
+
+    // use core::fmt::Write;
+    // vga_buffer::WRITER.lock().write_str("HELL O AGAIN").unwrap();
+    // write!(vga_buffer::WRITER.lock(), ", some numbers: {} {}", 42, 1.337).unwrap();
     
     loop{}
 }
