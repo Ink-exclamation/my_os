@@ -28,7 +28,7 @@ pub enum Color {
 
 #[derive(Clone, Copy)]
 #[repr(transparent)]
-struct ColorCode(u8);
+pub struct ColorCode(u8);
 
 impl ColorCode {
 	fn new(foreground: Color, background: Color) -> ColorCode {
@@ -38,23 +38,23 @@ impl ColorCode {
 
 #[derive(Clone, Copy)]
 #[repr(C)]
-struct ScreenChar {
-	ascii_character: u8,
-	color_code: ColorCode,
+pub struct ScreenChar {
+	pub ascii_character: u8,
+	pub color_code: ColorCode,
 }
 
-const BUFFER_HEIGHT: usize = 25;
-const BUFFER_WIDTH: usize = 80;
+pub const BUFFER_HEIGHT: usize = 25;
+pub const BUFFER_WIDTH: usize = 80;
 
 #[repr(transparent)]
-struct Buffer {
-	chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+pub struct Buffer {
+	pub chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
 
 pub struct Writer {
-	column_position: usize,
-	color_code: ColorCode,
-	buffer: &'static mut Buffer,
+	pub column_position: usize,
+	pub color_code: ColorCode,
+	pub buffer: &'static mut Buffer,
 }
 
 impl Writer {
