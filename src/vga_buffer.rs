@@ -169,22 +169,24 @@ pub fn _print(args: fmt::Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
 
+#[test_case]
+fn test_println_simple() {
+    println!("test_println_simple output");
+}
 
-// pub fn print_something() {
-// 	let mut writer = Writer {
-// 		column_position: 0,
-// 		color_code: ColorCode::new(Color::Yellow, Color::Black),
-// 		buffer: unsafe {&mut *(0xb8000 as *mut Buffer)},
-// 	};
+#[test_case]
+fn test_println_many() {
+    for _ in 0..200{
+        println!("test_println_many output");
+    }
+}
 
-// 	writer.write_byte(b'H');
-// 	writer.write_string("ello ");
-// 	writer.write_string("Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!Wörld!");
-// 	write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
-
-//     // let vga_buffer = 0xb8000 as *mut u8;
-// 	// unsafe {
-// 	// 	*vga_buffer.offset(0) = b'H';
-// 	// 	*vga_buffer.offset(1) = 0xb;
-// 	// }
-// }
+#[test_case]
+fn test_println_output() {
+    let s = "Some test string that fits on a single line";
+    println!("{}", s);
+    for (i, c) in s.chars().enumerate() {
+        let screen_char = WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i];
+        assert_eq!(char::from(screen_char.ascii_character), c);
+    }
+}

@@ -5,5 +5,9 @@
   "rust-analyzer.cargo.extraArgs": [
     "--target",
     "x86_64-blog_os.json"
-  ]
+  ],
+  "editor.stickyTabStops": true,
+  "editor.tabCompletion": "on",
+  "editor.insertSpaces": false,
+  "editor.comments.insertSpace": false,
 }
