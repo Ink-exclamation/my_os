@@ -8,5 +8,6 @@
 			"program": "/bin/true",
 			"preLaunchTask": "cargo run (WSL)"
 		}
-	]
+	],
+	"initCommands":["settings set target.disable-aslr false"]
 }

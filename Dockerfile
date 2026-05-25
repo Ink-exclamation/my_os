@@ -14,7 +14,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 # 3. 自作OS用のコンポーネントとbootimageツールを追加
-RUN rustup component add rust-src \
+RUN rustup component add rust-src llvm-tools-preview \
     && cargo install bootimage
 
 WORKDIR /workspace
