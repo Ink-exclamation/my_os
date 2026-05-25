@@ -1,0 +1,5 @@
+{
+    "name": "My WSL Container",
+    "remoteUser": "ink",
+	"image": "my_wsl_image"
+}
